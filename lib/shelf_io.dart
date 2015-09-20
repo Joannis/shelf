@@ -118,11 +118,13 @@ Request _fromHttpRequest(HttpRequest request) {
         .then((socket) => callback(socket, socket));
   }
 
-  return new Request(request.method, request.requestedUri,
+  Request r = new Request(request.method, request.requestedUri,
       protocolVersion: request.protocolVersion,
       headers: headers,
       body: request,
-      onHijack: onHijack);
+      onHijack: onHijack)..remoteAddress = request.connectionInfo.remoteAddress;
+
+  return r;
 }
 
 Future _writeResponse(Response response, HttpResponse httpResponse) {

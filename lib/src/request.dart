@@ -6,6 +6,7 @@ library shelf.request;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http_parser/http_parser.dart';
 
@@ -23,6 +24,8 @@ typedef void OnHijackCallback(HijackCallback callback);
 
 /// Represents an HTTP request to be processed by a Shelf application.
 class Request extends Message {
+  InternetAddress remoteAddress;
+
   /// The URL path from the current handler to the requested resource, relative
   /// to [handlerPath], plus any query parameters.
   ///
@@ -215,13 +218,15 @@ class Request extends Message {
     var handlerPath = this.handlerPath;
     if (path != null) handlerPath += path;
 
-    return new Request._(this.method, this.requestedUri,
+    Request r = new Request._(this.method, this.requestedUri,
         protocolVersion: this.protocolVersion,
         headers: headers,
         handlerPath: handlerPath,
         body: body,
         context: context,
-        onHijack: _onHijack);
+        onHijack: _onHijack)..remoteAddress = this.remoteAddress;
+
+    return r;
   }
 
   /// Takes control of the underlying request socket.
